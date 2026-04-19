@@ -819,17 +819,33 @@ export default function Editor() {
     <>
       <style>{css}</style>
       <link rel="stylesheet" href={googleFonts} />
+      {openMenu && <div style={{position:"fixed",inset:0,zIndex:99}} onClick={()=>setOpenMenu(null)}/>}
       <div style={{height:"100vh",display:"flex",flexDirection:"column",background:C.bg,color:C.text,fontFamily:"system-ui,-apple-system,sans-serif"}}>
-        {/* PS-style menu bar (decorative on upload) */}
-        <div style={{height:28,background:C.menubar,borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",padding:"0 8px",flexShrink:0,gap:4}}>
-          {["IMAGE-TOOLZ","Bestand","Bewerken","Afbeelding","Laag","Filter","Weergave"].map((m,i)=>(
-            <span key={m} className="ps-menu-item" style={{fontWeight:i===0?"700":"400",fontSize:i===0?13:12,letterSpacing:i===0?"-0.4px":"0"}}>{m}</span>
+        {/* Fully working menu bar */}
+        <div style={{height:28,background:C.menubar,borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",padding:"0 8px",flexShrink:0,zIndex:100}}>
+          <span style={{fontSize:13,fontWeight:700,color:C.text,letterSpacing:"-0.4px",marginRight:8}}>IMAGE-TOOLZ</span>
+          {Object.entries(menus).map(([name,items])=>(
+            <div key={name} style={{position:"relative"}}>
+              <span className={`ps-menu-item${openMenu===name?" active":""}`} onClick={e=>{e.stopPropagation();setOpenMenu(openMenu===name?null:name)}}>{name}</span>
+              {openMenu===name && (
+                <div className="dropdown-menu" style={{top:28,left:0}}>
+                  {(items as any[]).map((item,i)=>
+                    item.sep
+                      ? <div key={i} className="dropdown-separator"/>
+                      : <div key={i} className={`dropdown-item${item.disabled?" disabled":""}`} onClick={()=>{item.action();setOpenMenu(null);}}>
+                          <span>{item.label}</span>
+                          {item.shortcut && <span style={{opacity:0.4,fontSize:10}}>{item.shortcut}</span>}
+                        </div>
+                  )}
+                </div>
+              )}
+            </div>
           ))}
         </div>
         {/* Upload area */}
         <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",backgroundImage:"radial-gradient(rgba(255,255,255,0.04) 1px,transparent 1px)",backgroundSize:"28px 28px"}}>
           <div style={{animation:"fadeInUp 0.5s ease both",display:"flex",flexDirection:"column",alignItems:"center",gap:28}}>
-            <div style={{"left":"center"}}>
+            <div style={{textAlign:"center"}}>
               <h1 style={{fontSize:36,fontWeight:600,color:C.text,margin:"0 0 8px",letterSpacing:"-1px"}}>Image Editor</h1>
               <p style={{fontSize:14,color:C.muted,margin:0}}>Professionele beeldbewerking · Lagen · Aanpassingen · Effecten</p>
             </div>
@@ -837,7 +853,7 @@ export default function Editor() {
               <div style={{width:60,height:60,borderRadius:12,background:draggingUpload?C.accentDim:C.panel2,display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={draggingUpload?C.accent:C.muted} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
               </div>
-              <div style={{"left":"center"}}>
+              <div style={{textAlign:"center"}}>
                 <p style={{fontSize:15,color:C.text,margin:"0 0 6px",fontWeight:500}}>Sleep je afbeelding hierheen</p>
                 <p style={{fontSize:12,color:C.muted,margin:0}}>PNG · JPG · WebP · GIF · BMP</p>
               </div>
@@ -989,7 +1005,10 @@ export default function Editor() {
                   {filterDensity>0 && <div style={{position:"absolute",inset:0,pointerEvents:"none",background:filterColor,opacity:filterDensity*0.006}} />}
 
                   {/* Glow */}
+                  {vignette>0 && <div style={{position:"absolute",inset:0,pointerEvents:"none",background:`radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,${vignette*0.008}) 100%)`}} />}
+
                   {glowStr>0 && <div style={{position:"absolute",inset:0,pointerEvents:"none",boxShadow:`inset 0 0 ${glowStr*3}px rgba(${glowR},${glowG},${glowB},${glowStr*0.02})`}} />}
+                  {noiseAmt>0 && <div style={{position:"absolute",inset:0,pointerEvents:"none",opacity:noiseAmt*0.006,backgroundImage:`url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='1'/%3E%3C/svg%3E")`,backgroundSize:"200px 200px"}} />}
 
                   {/* Crop overlay */}
                   {showCrop && (
