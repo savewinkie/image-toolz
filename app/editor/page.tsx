@@ -1,11 +1,11 @@
 "use client";
-import { useState, useRef, useCallback, useEffect, useReducer } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-type ActiveTool = "move"|"marquee"|"lasso"|"crop"|"brush"|"eraser"|"text"|"shape"|"eyedropper"|"zoom"|"hand"|"gradient";
+type ActiveTool = "move"|"marquee"|"lasso"|"crop"|"brush"|"eraser"|"dodge"|"burn"|"bucket"|"text"|"shape"|"sticker"|"eyedropper"|"zoom"|"hand"|"gradient";
 type RightTab   = "adjust"|"layers"|"history"|"filters";
-type ShapeType  = "rect"|"ellipse"|"line"|"arrow";
+type ShapeType  = "rect"|"ellipse"|"line"|"arrow"|"triangle"|"star";
 type BlendMode  = "normal"|"multiply"|"screen"|"overlay"|"darken"|"lighten"|"color-dodge"|"color-burn"|"hard-light"|"soft-light"|"difference"|"exclusion";
 
 interface Layer {
@@ -654,7 +654,7 @@ export default function Editor() {
         {glowStr > 0 && (
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
             {[{l:"R",v:glowR,s:setGlowR,c:"#e05555"},{l:"G",v:glowG,s:setGlowG,c:"#55e055"},{l:"B",v:glowB,s:setGlowB,c:"#5599ff"}].map(ch=>(
-              <div key={ch.l}><span style={{fontSize:9,color:ch.c,letterSpacing:1,display:"block",textAlign:"center",marginBottom:3}}>{ch.l}</span><input type="range" min={0} max={255} value={ch.v} onChange={e=>ch.s(parseInt(e.target.value))} style={{accentColor:ch.c,width:"100%"}} /></div>
+              <div key={ch.l}><span style={{fontSize:9,color:ch.c,letterSpacing:1,display:"block","left":"center",marginBottom:3}}>{ch.l}</span><input type="range" min={0} max={255} value={ch.v} onChange={e=>ch.s(parseInt(e.target.value))} style={{accentColor:ch.c,width:"100%"}} /></div>
             ))}
           </div>
         )}
@@ -662,7 +662,7 @@ export default function Editor() {
 
       <AccordionSection id="border" title="Kader">
         {BORDER_STYLES.map(b=>(
-          <button key={b.n} onClick={()=>setBorderStyle(b.v)} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 10px",borderRadius:4,cursor:"pointer",background:borderStyle===b.v?C.accentDim:"transparent",border:borderStyle===b.v?`1px solid ${C.accentBorder}`:`1px solid transparent`,color:borderStyle===b.v?C.accent:C.muted,fontSize:12,width:"100%",textAlign:"left",transition:"all 0.1s"}}>
+          <button key={b.n} onClick={()=>setBorderStyle(b.v)} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 10px",borderRadius:4,cursor:"pointer",background:borderStyle===b.v?C.accentDim:"transparent",border:borderStyle===b.v?`1px solid ${C.accentBorder}`:`1px solid transparent`,color:borderStyle===b.v?C.accent:C.muted,fontSize:12,width:"100%","left":"left",transition:"all 0.1s"}}>
             <div style={{width:16,height:16,borderRadius:2,flexShrink:0,border:b.v==="none"?`1px dashed ${C.border}`:`3px solid ${b.p}`}} />
             {b.n}
           </button>
@@ -682,7 +682,7 @@ export default function Editor() {
               <img src={image!} alt={f.name} style={{width:"100%",height:"100%",objectFit:"cover",filter:f.f==="none"?"none":f.f}} />
               {filterPreset===i && <div style={{position:"absolute",top:4,right:4,width:14,height:14,borderRadius:"50%",background:C.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><svg width="8" height="8" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#111" strokeWidth="2" strokeLinecap="round"/></svg></div>}
             </div>
-            <p style={{fontSize:9,color:filterPreset===i?C.accent:C.muted,margin:"5px 0 1px",textAlign:"center",letterSpacing:1,textTransform:"uppercase"}}>{f.name}</p>
+            <p style={{fontSize:9,color:filterPreset===i?C.accent:C.muted,margin:"5px 0 1px","left":"center",letterSpacing:1,textTransform:"uppercase"}}>{f.name}</p>
           </button>
         ))}
       </div>
@@ -829,7 +829,7 @@ export default function Editor() {
         {/* Upload area */}
         <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",backgroundImage:"radial-gradient(rgba(255,255,255,0.04) 1px,transparent 1px)",backgroundSize:"28px 28px"}}>
           <div style={{animation:"fadeInUp 0.5s ease both",display:"flex",flexDirection:"column",alignItems:"center",gap:28}}>
-            <div style={{textAlign:"center"}}>
+            <div style={{"left":"center"}}>
               <h1 style={{fontSize:36,fontWeight:600,color:C.text,margin:"0 0 8px",letterSpacing:"-1px"}}>Image Editor</h1>
               <p style={{fontSize:14,color:C.muted,margin:0}}>Professionele beeldbewerking · Lagen · Aanpassingen · Effecten</p>
             </div>
@@ -837,7 +837,7 @@ export default function Editor() {
               <div style={{width:60,height:60,borderRadius:12,background:draggingUpload?C.accentDim:C.panel2,display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={draggingUpload?C.accent:C.muted} strokeWidth="1.8" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
               </div>
-              <div style={{textAlign:"center"}}>
+              <div style={{"left":"center"}}>
                 <p style={{fontSize:15,color:C.text,margin:"0 0 6px",fontWeight:500}}>Sleep je afbeelding hierheen</p>
                 <p style={{fontSize:12,color:C.muted,margin:0}}>PNG · JPG · WebP · GIF · BMP</p>
               </div>
@@ -866,7 +866,7 @@ export default function Editor() {
       {/* Modals */}
       {showBlock && (
         <div style={{position:"fixed",inset:0,zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(0,0,0,0.8)",animation:"fadeIn 0.2s ease"}} onClick={()=>setShowBlock(false)}>
-          <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:10,padding:40,maxWidth:380,width:"90%",textAlign:"center",animation:"fadeInUp 0.25s ease"}} onClick={e=>e.stopPropagation()}>
+          <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:10,padding:40,maxWidth:380,width:"90%","left":"center",animation:"fadeInUp 0.25s ease"}} onClick={e=>e.stopPropagation()}>
             <h2 style={{fontSize:22,fontWeight:600,color:C.text,margin:"0 0 12px"}}>Download limiet bereikt</h2>
             <p style={{fontSize:13,color:C.muted,lineHeight:1.7,margin:"0 0 28px"}}>Log in voor onbeperkt downloaden — gratis.</p>
             <button onClick={()=>window.location.href="/login"} style={{width:"100%",padding:"11px",background:C.accent,color:"#111",border:"none",borderRadius:7,fontSize:12,fontWeight:700,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",marginBottom:10}}>Inloggen</button>
@@ -1049,67 +1049,351 @@ export default function Editor() {
             </div>
           </div>
 
-          {/* ── RIGHT PANEL ── */}
+          {/* ── RIGHT PANEL — tool-driven ── */}
           <div style={{width:268,background:C.panel,borderLeft:`1px solid ${C.border}`,display:"flex",flexDirection:"column",flexShrink:0,overflow:"hidden"}}>
-            {/* Tabs */}
-            <div style={{display:"flex",borderBottom:`1px solid ${C.border}`,flexShrink:0}}>
-              {([["adjust","Aanpassen"],["filters","Filters"],["layers","Lagen"],["history","Geschiedenis"]] as [RightTab,string][]).map(([id,label])=>(
-                <button key={id} onClick={()=>setRightTab(id)} style={{flex:1,padding:"9px 4px",border:"none",cursor:"pointer",fontSize:10,letterSpacing:1,fontWeight:600,textTransform:"uppercase",transition:"all 0.1s",background:rightTab===id?C.panel2:"transparent",color:rightTab===id?C.accent:C.muted,borderBottom:rightTab===id?`2px solid ${C.accent}`:"2px solid transparent"}}>
-                  {label}
-                </button>
-              ))}
+            {/* Header: toont actief tool */}
+            <div style={{height:38,background:C.panel2,borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",padding:"0 14px",flexShrink:0,gap:8}}>
+              <span style={{fontSize:15}}>
+                {activeTool==="move"?"✥":activeTool==="marquee"?"⬚":activeTool==="crop"?"⊡":activeTool==="brush"?"✏":activeTool==="eraser"?"◻":activeTool==="dodge"?"☀":activeTool==="burn"?"☽":activeTool==="bucket"?"▣":activeTool==="text"?"T":activeTool==="shape"?"◯":activeTool==="sticker"?"☺":activeTool==="zoom"?"⊕":activeTool==="eyedropper"?"◉":"✋"}
+              </span>
+              <span style={{fontSize:11,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:C.text,flex:1}}>
+                {TOOLS_LEFT.find(t=>t.id===activeTool)?.label||"Properties"}
+              </span>
+              {/* Extra tabs only for neutral tools */}
+              {(activeTool==="move"||activeTool==="hand"||activeTool==="marquee"||activeTool==="zoom"||activeTool==="eyedropper") && (
+                <div style={{display:"flex",gap:2}}>
+                  {([["adjust","Aanp."],["filters","Filt."],["layers","Lagen"],["history","Hist."]] as [RightTab,string][]).map(([id,lbl])=>(
+                    <button key={id} onClick={()=>setRightTab(id)} style={{padding:"3px 6px",borderRadius:3,background:rightTab===id?C.accentDim:"transparent",border:rightTab===id?`1px solid ${C.accentBorder}`:`1px solid transparent`,color:rightTab===id?C.accent:C.muted,fontSize:9,cursor:"pointer",letterSpacing:0.5}}>{lbl}</button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Panel content */}
-            <div style={{flex:1,overflowY:"auto",animation:"slidePanel 0.15s ease"}}>
-              {rightTab==="adjust"  && <AdjustPanel />}
-              {rightTab==="filters" && <FiltersPanel />}
-              {rightTab==="layers"  && <LayersPanel />}
-              {rightTab==="history" && <HistoryPanel />}
-            </div>
+            {/* Panel body */}
+            <div style={{flex:1,overflowY:"auto"}}>
 
-            {/* Tool-specific panel at bottom */}
-            {(activeTool==="text"||activeTool==="sticker"||activeTool==="crop") && (
-              <div style={{borderTop:`1px solid ${C.border}`,padding:"12px 14px",background:C.panel2,flexShrink:0}}>
-                {activeTool==="text" && (
-                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                    <textarea value={newText} onChange={e=>setNewText(e.target.value)} placeholder="Typ je tekst..." rows={2}
-                      style={{background:C.panel3,color:C.text,border:`1px solid ${C.border}`,borderRadius:4,padding:"7px 10px",fontSize:12,outline:"none",width:"100%",boxSizing:"border-box",resize:"none",fontFamily:"inherit"}}
+              {/* NEUTRAL TOOLS: toon tabs */}
+              {(activeTool==="move"||activeTool==="hand"||activeTool==="marquee"||activeTool==="zoom"||activeTool==="eyedropper") && (
+                <div>
+                  {rightTab==="adjust"  && <AdjustPanel/>}
+                  {rightTab==="filters" && <FiltersPanel/>}
+                  {rightTab==="layers"  && <LayersPanel/>}
+                  {rightTab==="history" && <HistoryPanel/>}
+                </div>
+              )}
+
+              {/* BIJSNIJDEN */}
+              {activeTool==="crop" && (
+                <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:12}}>
+                  <div style={{padding:"10px 12px",borderRadius:5,background:"rgba(74,158,255,0.08)",border:`1px solid rgba(74,158,255,0.2)`,fontSize:11,color:C.blue,lineHeight:1.6}}>
+                    Kies een verhouding en schakel de overlay in om het bijsnijdgebied te zien.
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5}}>
+                    {[["Vrij","free"],["1:1","1:1"],["4:3","4:3"],["16:9","16:9"],["3:2","3:2"],["Portret","2:3"]].map(([l,v])=>(
+                      <button key={v} onClick={()=>{setCropMode(v);setShowCrop(true);}} style={{padding:"8px",borderRadius:4,background:cropMode===v?C.accentDim:"transparent",border:cropMode===v?`1px solid ${C.accentBorder}`:`1px solid ${C.border}`,color:cropMode===v?C.accent:C.muted,fontSize:11,cursor:"pointer","left":"center" as const,transition:"all 0.1s"}}>{l}</button>
+                    ))}
+                  </div>
+                  <div style={{height:1,background:C.border,margin:"4px 0"}}/>
+                  <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                    <div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>X Offset</span><span style={{fontSize:10,color:C.muted}}>{cropX}%</span></div>
+                      <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${cropX}%`,background:C.accent}}/><input type="range" min={0} max={80} value={cropX} onChange={e=>setCropX(parseInt(e.target.value))} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                    </div>
+                    <div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>Y Offset</span><span style={{fontSize:10,color:C.muted}}>{cropY}%</span></div>
+                      <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${cropY}%`,background:C.accent}}/><input type="range" min={0} max={80} value={cropY} onChange={e=>setCropY(parseInt(e.target.value))} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                    </div>
+                    <div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>Breedte</span><span style={{fontSize:10,color:C.muted}}>{cropW}%</span></div>
+                      <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${cropW}%`,background:C.accent}}/><input type="range" min={10} max={100} value={cropW} onChange={e=>setCropW(parseInt(e.target.value))} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                    </div>
+                    <div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>Hoogte</span><span style={{fontSize:10,color:C.muted}}>{cropH}%</span></div>
+                      <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${cropH}%`,background:C.accent}}/><input type="range" min={10} max={100} value={cropH} onChange={e=>setCropH(parseInt(e.target.value))} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                    </div>
+                  </div>
+                  <button onClick={()=>setShowCrop(!showCrop)} style={{padding:"9px",background:showCrop?C.accentDim:C.panel3,border:`1px solid ${showCrop?C.accentBorder:C.border}`,borderRadius:5,color:showCrop?C.accent:C.muted,fontSize:11,cursor:"pointer",fontWeight:showCrop?700:400,marginTop:4}}>
+                    {showCrop?"✓ Overlay actief — klik om te verbergen":"Toon crop overlay"}
+                  </button>
+                  {/* Mini preview */}
+                  <div style={{borderRadius:5,background:"#000",border:`1px solid ${C.border}`,height:60,position:"relative",overflow:"hidden"}}>
+                    {image && <img src={image} alt="" style={{width:"100%",height:"100%",objectFit:"cover",opacity:0.4}}/>}
+                    <div style={{position:"absolute",border:`2px solid ${C.accent}`,left:`${cropX}%`,top:`${cropY}%`,width:`${cropW}%`,height:`${cropH}%`,transition:"all 0.15s",boxShadow:"0 0 0 9999px rgba(0,0,0,0.5)"}}/>
+                  </div>
+                </div>
+              )}
+
+              {/* PENSEEL / GUM / DODGE / BURN */}
+              {(activeTool==="brush"||activeTool==="eraser"||activeTool==="dodge"||activeTool==="burn") && (
+                <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:14}}>
+                  <div style={{padding:"10px 12px",borderRadius:5,border:"1px solid",
+                    background:activeTool==="brush"?C.accentDim:activeTool==="eraser"?"rgba(224,82,82,0.1)":activeTool==="dodge"?"rgba(255,220,100,0.08)":"rgba(150,100,50,0.12)",
+                    borderColor:activeTool==="brush"?C.accentBorder:activeTool==="eraser"?"rgba(224,82,82,0.25)":activeTool==="dodge"?"rgba(255,220,100,0.2)":"rgba(150,100,50,0.25)",
+                    color:activeTool==="brush"?C.accent:activeTool==="eraser"?C.red:activeTool==="dodge"?"#ffdc64":"#c8a060",
+                    fontSize:11,lineHeight:1.6}}>
+                    {activeTool==="brush"&&"✏ Teken op het canvas door te klikken en te slepen."}
+                    {activeTool==="eraser"&&"◻ Gum wist geselecteerde lagen. Klik een laag aan en verwijder."}
+                    {activeTool==="dodge"&&"☀ Ontwijken maakt gebieden lichter via de helderheidsinstelling."}
+                    {activeTool==="burn"&&"☽ Branden maakt gebieden donkerder via het contrast."}
+                  </div>
+                  <div>
+                    <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",marginBottom:8}}>Penseelkleur</span>
+                    <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                      <input type="color" value={brushColor} onChange={e=>setBrushColor(e.target.value)} style={{width:40,height:32,borderRadius:5,border:`1px solid ${C.border}`,cursor:"pointer",background:"none"}}/>
+                      <span style={{fontSize:11,color:C.muted,fontFamily:"monospace"}}>{brushColor.toUpperCase()}</span>
+                    </div>
+                    <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+                      {["#ffffff","#C9A84C","#e05252","#4a9eff","#52c472","#e0854a","#cc88ff","#000000"].map(col=>(
+                        <button key={col} onClick={()=>setBrushColor(col)} style={{width:24,height:24,borderRadius:4,background:col,border:brushColor===col?`2px solid ${C.text}`:`1.5px solid ${C.border}`,cursor:"pointer",transform:brushColor===col?"scale(1.15)":"scale(1)",transition:"transform 0.1s"}}/>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{height:1,background:C.border}}/>
+                  <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                    <div>
+                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>Grootte</span><span style={{fontSize:10,color:C.muted}}>{brushSize}px</span></div>
+                      <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${(brushSize/100)*100}%`,background:C.accent}}/><input type="range" min={1} max={100} value={brushSize} onChange={e=>setBrushSize(parseInt(e.target.value))} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                    </div>
+                    <div>
+                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>Hardheid</span><span style={{fontSize:10,color:C.muted}}>{brushSize}%</span></div>
+                      <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${brushSize}%`,background:"#888"}}/><input type="range" min={0} max={100} value={brushSize} onChange={()=>{}} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                    </div>
+                    <div>
+                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>Dekking</span><span style={{fontSize:10,color:C.muted}}>{brushOpacity}%</span></div>
+                      <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${brushOpacity}%`,background:"#aaa"}}/><input type="range" min={1} max={100} value={brushOpacity} onChange={e=>setBrushOpacity(parseInt(e.target.value))} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                    </div>
+                  </div>
+                  <div style={{height:1,background:C.border}}/>
+                  <div>
+                    <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",marginBottom:8}}>Penseeltype</span>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5}}>
+                      {["Zacht","Hard","Spons","Inkt","Spray","Kalk"].map((b,i)=>(
+                        <button key={b} style={{padding:"7px",borderRadius:4,background:i===0?C.accentDim:"transparent",border:i===0?`1px solid ${C.accentBorder}`:`1px solid ${C.border}`,color:i===0?C.accent:C.muted,fontSize:11,cursor:"pointer"}}>{b}</button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Brush preview */}
+                  <div style={{borderRadius:5,background:"#000",border:`1px solid ${C.border}`,height:56,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    <div style={{width:Math.max(8,brushSize*0.55),height:Math.max(8,brushSize*0.55),borderRadius:"50%",background:brushColor,opacity:brushOpacity/100,boxShadow:brushSize>50?`0 0 0 1px ${brushColor}44`:`0 0 ${(100-brushSize)*0.12}px ${brushColor}88`,transition:"all 0.15s"}}/>
+                  </div>
+                </div>
+              )}
+
+              {/* EMMERTJE */}
+              {activeTool==="bucket" && (
+                <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:14}}>
+                  <div style={{padding:"10px 12px",borderRadius:5,background:"rgba(74,158,255,0.08)",border:`1px solid rgba(74,158,255,0.2)`,fontSize:11,color:C.blue,lineHeight:1.6}}>
+                    ▣ Vult de achtergrond of een vorm laag met de gekozen kleur.
+                  </div>
+                  <div>
+                    <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",marginBottom:8}}>Vulkleur</span>
+                    <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+                      <input type="color" value={fgColor} onChange={e=>setFgColor(e.target.value)} style={{width:40,height:32,borderRadius:5,border:`1px solid ${C.border}`,cursor:"pointer",background:"none"}}/>
+                      <span style={{fontSize:11,color:C.muted,fontFamily:"monospace"}}>{fgColor.toUpperCase()}</span>
+                    </div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:5}}>
+                      {["#1a1a1a","#ffffff","#C9A84C","#e05252","#4a9eff","#52c472","#e0854a","#8855cc","#ff88cc","#44ddcc","#ffcc44","#888888"].map(col=>(
+                        <button key={col} onClick={()=>setFgColor(col)} style={{aspectRatio:"1",borderRadius:4,background:col,border:fgColor===col?`2px solid ${C.text}`:`1.5px solid ${C.border}`,cursor:"pointer",transform:fgColor===col?"scale(1.1)":"scale(1)",transition:"transform 0.1s"}}/>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TEKST */}
+              {activeTool==="text" && (
+                <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:14}}>
+                  <div>
+                    <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",marginBottom:6}}>Tekst invoer</span>
+                    <textarea value={newText} onChange={e=>setNewText(e.target.value)} placeholder="Typ hier..." rows={3}
+                      style={{background:C.panel3,color:C.text,border:`1px solid ${C.border}`,borderRadius:5,padding:"9px 11px",fontSize:14,outline:"none",width:"100%",boxSizing:"border-box",resize:"vertical",fontFamily:textFont,fontWeight:textBold?"bold":"normal",fontStyle:textItalic?"italic":"normal",lineHeight:1.5,transition:"border-color 0.15s"}}
                       onFocus={e=>e.currentTarget.style.borderColor=C.accentBorder} onBlur={e=>e.currentTarget.style.borderColor=C.border}
-                      onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&(e.preventDefault(),addTextLayer())} />
-                    <button onClick={addTextLayer} disabled={!newText.trim()} style={{padding:"8px",background:newText.trim()?C.accent:C.panel3,color:newText.trim()?"#111":C.muted,border:"none",borderRadius:5,fontSize:11,fontWeight:700,letterSpacing:2,textTransform:"uppercase",cursor:newText.trim()?"pointer":"not-allowed"}}>Laag toevoegen</button>
+                      onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&(e.preventDefault(),addTextLayer())}/>
                   </div>
-                )}
-                {activeTool==="sticker" && (
-                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                    <button onClick={()=>stickerRef.current?.click()} style={{padding:"6px",background:C.panel3,border:`1px dashed ${C.borderHi}`,borderRadius:4,color:C.muted,fontSize:11,cursor:"pointer"}}>+ Eigen afbeelding</button>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,maxHeight:100,overflowY:"auto"}}>
-                      {STICKERS.map((e,i)=>(
-                        <button key={i} onClick={()=>addStickerLayer(e)} style={{fontSize:18,padding:"4px",borderRadius:3,border:"none",background:"transparent",cursor:"pointer",transition:"transform 0.1s"}}
-                          onMouseEnter={ev=>(ev.currentTarget.style.transform="scale(1.2)")}
-                          onMouseLeave={ev=>(ev.currentTarget.style.transform="scale(1)")}>{e}</button>
+                  <div style={{display:"flex",gap:5}}>
+                    {[["B",textBold,setTextBold],["I",textItalic,setTextItalic],["U",false,()=>{}]].map(([lbl,v,s])=>(
+                      <button key={lbl as string} onClick={()=>(s as (v:boolean)=>void)(!(v as boolean))} style={{flex:1,padding:"6px",borderRadius:4,background:(v as boolean)?C.accentDim:"transparent",border:(v as boolean)?`1px solid ${C.accentBorder}`:`1px solid ${C.border}`,color:(v as boolean)?C.accent:C.muted,fontSize:14,cursor:"pointer",fontWeight:lbl==="B"?"bold":"normal",fontStyle:lbl==="I"?"italic":"normal",textDecoration:lbl==="U"?"underline":"none"}}>{lbl as string}</button>
+                    ))}
+                    {(["←","↔","→"] as string[]).map((a,i)=>(
+                      <button key={a} onClick={()=>{}} style={{flex:1,padding:"6px",borderRadius:4,background:false?C.accentDim:"transparent",border:`1px solid ${C.border}`,color:C.muted,fontSize:11,cursor:"pointer"}}>{a}</button>
+                    ))}
+                  </div>
+                  <div style={{height:1,background:C.border}}/>
+                  <div>
+                    <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",marginBottom:6}}>Font</span>
+                    <select value={textFont} onChange={e=>setTextFont(e.target.value)} style={{width:"100%",background:C.panel3,color:C.text,border:`1px solid ${C.border}`,borderRadius:5,padding:"8px 10px",fontSize:12,outline:"none",cursor:"pointer",marginBottom:10}}>
+                      {FONTS.map(f=><option key={f} value={f}>{f}</option>)}
+                    </select>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>Grootte</span><span style={{fontSize:10,color:C.muted}}>{textSize}px</span></div>
+                    <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${(textSize/160)*100}%`,background:C.accent}}/><input type="range" min={8} max={160} value={textSize} onChange={e=>setTextSize(parseInt(e.target.value))} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                  </div>
+                  <div>
+                    <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",marginBottom:8}}>Kleur</span>
+                    <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                      <input type="color" value={textColor} onChange={e=>setTextColor(e.target.value)} style={{width:36,height:28,borderRadius:4,border:`1px solid ${C.border}`,cursor:"pointer",background:"none"}}/>
+                      <span style={{fontSize:11,color:C.muted,fontFamily:"monospace"}}>{textColor.toUpperCase()}</span>
+                    </div>
+                    <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+                      {["#ffffff","#000000","#C9A84C","#e05252","#4a9eff","#52c472","#ffcc44","#ff88cc","#cc88ff","#ff8800"].map(col=>(
+                        <button key={col} onClick={()=>setTextColor(col)} style={{width:22,height:22,borderRadius:4,background:col,border:textColor===col?`2px solid ${C.text}`:`1.5px solid ${C.border}`,cursor:"pointer",transform:textColor===col?"scale(1.15)":"scale(1)",transition:"transform 0.1s"}}/>
                       ))}
                     </div>
                   </div>
-                )}
-                {activeTool==="crop" && (
-                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                    <Label ch="Bijsnijden" />
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-                      {[{l:"Vrij",v:"free"},{l:"1:1",v:"1:1"},{l:"4:3",v:"4:3"},{l:"16:9",v:"16:9"}].map(r=>(
-                        <button key={r.v} onClick={()=>{setCropMode(r.v);setShowCrop(true)}} style={{padding:"5px",borderRadius:4,background:cropMode===r.v?C.accentDim:"transparent",border:cropMode===r.v?`1px solid ${C.accentBorder}`:`1px solid ${C.border}`,color:cropMode===r.v?C.accent:C.muted,fontSize:11,cursor:"pointer"}}>{r.l}</button>
+                  {newText && (
+                    <div style={{borderRadius:5,background:"#000",border:`1px solid ${C.border}`,padding:"12px",minHeight:48,display:"flex",alignItems:"center",justifyContent:"flex-start"}}>
+                      <span style={{fontFamily:textFont,fontSize:Math.min(textSize,26),color:textColor,fontWeight:textBold?"bold":"normal",fontStyle:textItalic?"italic":"normal",textDecoration:false?"underline":"none",textShadow:"0 2px 8px rgba(0,0,0,0.9)"}}>{newText}</span>
+                    </div>
+                  )}
+                  <button onClick={addTextLayer} disabled={!newText.trim()} style={{padding:"10px",background:newText.trim()?C.accent:C.panel3,color:newText.trim()?"#111":C.muted,border:"none",borderRadius:5,fontSize:11,fontWeight:700,letterSpacing:2,textTransform:"uppercase" as const,cursor:newText.trim()?"pointer":"not-allowed",transition:"all 0.15s"}}>
+                    + Tekstlaag toevoegen
+                  </button>
+                  {layers.filter(l=>l.type==="text").length>0&&(
+                    <div>
+                      <div style={{height:1,background:C.border,margin:"4px 0"}}/>
+                      <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",marginBottom:6}}>Tekst lagen</span>
+                      {layers.filter(l=>l.type==="text").map(l=>(
+                        <div key={l.id} onClick={()=>setSelectedLayerId(l.id)} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 10px",borderRadius:4,cursor:"pointer",border:selectedLayerId===l.id?`1px solid ${C.accentBorder}`:`1px solid ${C.border}`,background:selectedLayerId===l.id?C.accentDim:"transparent",marginBottom:4,transition:"all 0.1s"}}>
+                          <span style={{fontFamily:l.fontFamily,fontSize:14,color:l.color||C.text,fontWeight:l.bold?"bold":"normal",minWidth:18,"left":"center" as const}}>{(l.text||"").charAt(0)||"T"}</span>
+                          <span style={{fontSize:11,color:C.muted,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.text}</span>
+                          <button onClick={e=>{e.stopPropagation();deleteLayer(l.id);}} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.2)",fontSize:11,padding:"0 2px"}}>✕</button>
+                        </div>
                       ))}
                     </div>
-                    <button onClick={()=>setShowCrop(!showCrop)} style={{padding:"6px",background:showCrop?C.accentDim:C.panel3,border:`1px solid ${showCrop?C.accentBorder:C.border}`,borderRadius:4,color:showCrop?C.accent:C.muted,fontSize:11,cursor:"pointer"}}>{showCrop?"✓ Overlay actief":"Toon overlay"}</button>
+                  )}
+                </div>
+              )}
+
+              {/* VORMEN */}
+              {activeTool==="shape" && (
+                <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:14}}>
+                  <div>
+                    <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",marginBottom:8}}>Vorm kiezen</span>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6}}>
+                      {([["rect","▭","Rechthoek"],["ellipse","○","Ellips"],["line","—","Lijn"],["arrow","→","Pijl"],["triangle","△","Driehoek"],["star","★","Ster"]] as [ShapeType,string,string][]).map(([s,icon,label])=>(
+                        <button key={s} onClick={()=>setShapeType(s)} style={{padding:"10px 6px",borderRadius:5,background:shapeType===s?C.accentDim:"transparent",border:shapeType===s?`1px solid ${C.accentBorder}`:`1px solid ${C.border}`,color:shapeType===s?C.accent:C.muted,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:4,transition:"all 0.1s"}}>
+                          <span style={{fontSize:18}}>{icon}</span>
+                          <span style={{fontSize:9,letterSpacing:0.5}}>{label}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
+                  <div style={{height:1,background:C.border}}/>
+                  <div>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                      <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>Vulkleur</span>
+                      <button onClick={()=>setShapeFill(shapeFill==="none"?fgColor:"none")} style={{padding:"3px 8px",borderRadius:3,background:shapeFill==="none"?C.accentDim:"transparent",border:`1px solid ${shapeFill==="none"?C.accentBorder:C.border}`,color:shapeFill==="none"?C.accent:C.muted,fontSize:9,cursor:"pointer"}}>Geen</button>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                      <input type="color" value={shapeFill==="none"?"#C9A84C":shapeFill} onChange={e=>setShapeFill(e.target.value)} style={{width:36,height:28,borderRadius:4,border:`1px solid ${C.border}`,cursor:"pointer",background:"none"}}/>
+                      <span style={{fontSize:11,color:C.muted,fontFamily:"monospace"}}>{shapeFill==="none"?"Geen":shapeFill.toUpperCase()}</span>
+                    </div>
+                    <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+                      {["#C9A84C","#e05252","#4a9eff","#52c472","#e0854a","#8855cc","#ffffff","#000000"].map(col=>(
+                        <button key={col} onClick={()=>setShapeFill(col)} style={{width:24,height:24,borderRadius:4,background:col,border:shapeFill===col?`2px solid ${C.text}`:`1.5px solid ${C.border}`,cursor:"pointer"}}/>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                      <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>Lijnkleur</span>
+                      <button onClick={()=>setShapeStroke(shapeStroke==="none"?"#ffffff":"none")} style={{padding:"3px 8px",borderRadius:3,background:shapeStroke!=="none"?C.accentDim:"transparent",border:`1px solid ${shapeStroke!=="none"?C.accentBorder:C.border}`,color:shapeStroke!=="none"?C.accent:C.muted,fontSize:9,cursor:"pointer"}}>{shapeStroke==="none"?"Uit":"Aan"}</button>
+                    </div>
+                    {shapeStroke!=="none"&&(
+                      <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8}}>
+                        <input type="color" value={shapeStroke} onChange={e=>setShapeStroke(e.target.value)} style={{width:36,height:28,borderRadius:4,border:`1px solid ${C.border}`,cursor:"pointer",background:"none"}}/>
+                        <div style={{flex:1}}>
+                          <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:10,color:C.muted}}>Dikte</span><span style={{fontSize:10,color:C.muted}}>{shapeStrokeW}px</span></div>
+                          <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${(shapeStrokeW/20)*100}%`,background:"#888"}}/><input type="range" min={1} max={20} value={shapeStrokeW} onChange={e=>setShapeStrokeW(parseInt(e.target.value))} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/* Live SVG preview */}
+                  <div style={{borderRadius:5,background:"#000",border:`1px solid ${C.border}`,height:70,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    <svg width="90" height="54" viewBox="0 0 90 54">
+                      {shapeType==="rect"&&<rect x="5" y="5" width="80" height="44" fill={shapeFill==="none"?"none":shapeFill} stroke={shapeStroke==="none"?"none":shapeStroke} strokeWidth={Math.min(shapeStrokeW*0.5,4)}/>}
+                      {shapeType==="ellipse"&&<ellipse cx="45" cy="27" rx="39" ry="22" fill={shapeFill==="none"?"none":shapeFill} stroke={shapeStroke==="none"?"none":shapeStroke} strokeWidth={Math.min(shapeStrokeW*0.5,4)}/>}
+                      {shapeType==="line"&&<line x1="5" y1="49" x2="85" y2="5" stroke={shapeFill==="none"?"#666":shapeFill} strokeWidth={Math.min(shapeStrokeW*0.5,4)}/>}
+                      {shapeType==="arrow"&&<><line x1="5" y1="27" x2="78" y2="27" stroke={shapeFill==="none"?"#666":shapeFill} strokeWidth={Math.min(shapeStrokeW*0.5,4)}/><polygon points="78,20 90,27 78,34" fill={shapeFill==="none"?"#666":shapeFill}/></>}
+                      {shapeType==="triangle"&&<polygon points="45,5 85,49 5,49" fill={shapeFill==="none"?"none":shapeFill} stroke={shapeStroke==="none"?"none":shapeStroke} strokeWidth={Math.min(shapeStrokeW*0.5,4)}/>}
+                      {shapeType==="star"&&<polygon points="45,4 52,30 80,30 58,47 66,73 45,56 24,73 32,47 10,30 38,30" fill={shapeFill==="none"?"none":shapeFill} stroke={shapeStroke==="none"?"none":shapeStroke} strokeWidth={Math.min(shapeStrokeW*0.3,3)} transform="scale(0.62) translate(18,2)"/>}
+                    </svg>
+                  </div>
+                  <button onClick={addShapeLayer} style={{padding:"10px",background:C.accent,color:"#111",border:"none",borderRadius:5,fontSize:11,fontWeight:700,letterSpacing:2,textTransform:"uppercase" as const,cursor:"pointer"}}>
+                    + Vorm toevoegen
+                  </button>
+                  {layers.filter(l=>l.type==="shape").length>0&&(
+                    <div>
+                      <div style={{height:1,background:C.border,margin:"4px 0"}}/>
+                      <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",marginBottom:6}}>Vorm lagen</span>
+                      {layers.filter(l=>l.type==="shape").map(l=>(
+                        <div key={l.id} onClick={()=>setSelectedLayerId(l.id)} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 10px",borderRadius:4,cursor:"pointer",border:selectedLayerId===l.id?`1px solid ${C.accentBorder}`:`1px solid ${C.border}`,background:selectedLayerId===l.id?C.accentDim:"transparent",marginBottom:4,transition:"all 0.1s"}}>
+                          <span style={{fontSize:14}}>{l.shapeType==="rect"?"▭":l.shapeType==="ellipse"?"○":l.shapeType==="triangle"?"△":l.shapeType==="star"?"★":"—"}</span>
+                          <span style={{fontSize:11,color:C.muted,flex:1}}>{l.name}</span>
+                          <button onClick={e=>{e.stopPropagation();deleteLayer(l.id);}} style={{background:"none",border:"none",cursor:"pointer",color:"rgba(255,255,255,0.2)",fontSize:11}}>✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* STICKERS */}
+              {activeTool==="sticker" && (
+                <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:14}}>
+                  <button onClick={()=>stickerRef.current?.click()} style={{padding:"10px",border:`1.5px dashed ${C.borderHi}`,background:"transparent",color:C.muted,fontSize:12,cursor:"pointer",borderRadius:5,transition:"all 0.15s",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor=C.accent;e.currentTarget.style.color=C.accent;}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor=C.borderHi;e.currentTarget.style.color=C.muted;}}>
+                    📁 Eigen afbeelding uploaden
+                  </button>
+                  <div style={{height:1,background:C.border}}/>
+                  <div>
+                    <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",marginBottom:6}}>Standaard grootte</span>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:10,color:C.muted}}></span><span style={{fontSize:10,color:C.muted}}>{48}px</span></div>
+                    <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${(48/140)*100}%`,background:C.accent}}/><input type="range" min={20} max={140} value={48} onChange={()=>{}} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                  </div>
+                  <div style={{height:1,background:C.border}}/>
+                  <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted}}>Emoji bibliotheek</span>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3}}>
+                    {STICKERS.map((em,i)=>(
+                      <button key={i} onClick={()=>addStickerLayer(em)} style={{fontSize:20,padding:"5px",borderRadius:4,border:`1px solid transparent`,background:"transparent",cursor:"pointer",transition:"all 0.1s"}}
+                        onMouseEnter={ev=>{ev.currentTarget.style.background=C.panel3;ev.currentTarget.style.transform="scale(1.18)";}}
+                        onMouseLeave={ev=>{ev.currentTarget.style.background="transparent";ev.currentTarget.style.transform="scale(1)";}}>
+                        {em}
+                      </button>
+                    ))}
+                  </div>
+                  {selectedSticker&&layers.find(l=>l.id===selectedSticker)&&(()=>{
+                    const sl=layers.find(l=>l.id===selectedSticker)!;
+                    return (
+                      <div>
+                        <div style={{height:1,background:C.border}}/>
+                        <span style={{fontSize:10,letterSpacing:2,textTransform:"uppercase" as const,color:C.muted,display:"block",margin:"8px 0 8px"}}>Geselecteerde sticker</span>
+                        <div style={{padding:"12px",borderRadius:5,background:C.panel2,border:`1px solid ${C.accentBorder}`,display:"flex",flexDirection:"column",gap:10}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                            {!sl.isImageSticker?<span style={{fontSize:28}}>{sl.emoji}</span>:<img src={sl.imageUrl} alt="" style={{width:32,height:32,objectFit:"cover",borderRadius:3}}/>}
+                            <span style={{fontSize:11,color:C.muted}}>{sl.name}</span>
+                          </div>
+                          {[["Rotatie",sl.rotation||0,-180,180,"°",(v:number)=>setLayers(p=>p.map(l=>l.id===selectedSticker?{...l,rotation:v}:l))],["Breedte",Math.round(sl.width||60),20,400,"px",(v:number)=>setLayers(p=>p.map(l=>l.id===selectedSticker?{...l,width:v}:l))],["Hoogte",Math.round(sl.height||60),20,400,"px",(v:number)=>setLayers(p=>p.map(l=>l.id===selectedSticker?{...l,height:v}:l))]].map(([lbl,val,mn,mx,sfx,setFn])=>(
+                            <div key={lbl as string}>
+                              <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:10,color:C.muted}}>{lbl as string}</span><span style={{fontSize:10,color:C.muted}}>{val as number}{sfx as string}</span></div>
+                              <div style={{position:"relative",height:4,borderRadius:2,background:C.panel3}}><div style={{position:"absolute",left:0,top:0,height:"100%",borderRadius:2,width:`${Math.max(0,((val as number-(mn as number))/((mx as number)-(mn as number)))*100)}%`,background:C.accent}}/><input type="range" min={mn as number} max={mx as number} value={val as number} onChange={e=>(setFn as (v:number)=>void)(parseInt(e.target.value))} style={{position:"absolute",inset:"-8px 0",opacity:0,cursor:"pointer",width:"100%",height:"20px"}}/></div>
+                            </div>
+                          ))}
+                          <button onClick={()=>deleteLayer(selectedSticker)} style={{padding:"6px",background:"rgba(224,82,82,0.1)",border:`1px solid rgba(224,82,82,0.25)`,borderRadius:4,color:C.red,fontSize:11,cursor:"pointer"}}>✕ Verwijderen</button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
+            </div>
 
             {/* Status bar */}
-            <div style={{height:22,borderTop:`1px solid ${C.border}`,padding:"0 10px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
-              <span style={{fontSize:9,color:"rgba(255,255,255,0.2)",letterSpacing:1}}>IMAGE-TOOLZ EDITOR</span>
-              <span style={{fontSize:9,color:"rgba(255,255,255,0.2)",letterSpacing:1}}>{imgNatural.w>0?`${imgNatural.w}×${imgNatural.h}`:""}</span>
+            <div style={{height:22,borderTop:`1px solid ${C.border}`,padding:"0 10px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,background:C.panel2}}>
+              <span style={{fontSize:9,color:"rgba(255,255,255,0.18)",letterSpacing:1,textTransform:"uppercase"}}>IMAGE-TOOLZ EDITOR</span>
+              <span style={{fontSize:9,color:"rgba(255,255,255,0.18)"}}>{imgNatural.w>0?`${imgNatural.w}×${imgNatural.h}`:""}</span>
             </div>
           </div>
         </div>
